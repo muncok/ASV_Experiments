@@ -1,0 +1,10 @@
+t_0.wav	1
+t_1.wav	0
+t_2.wav	0
+t_3.wav	1
+t_4.wav	0
+t_5.wav	1
+t_6.wav	1
+t_7.wav	1
+t_8.wav	0
+t_9.wav	0
