@@ -1,0 +1,3 @@
+[submodule "sv_system"]
+	path = sv_system
+	url = git@bitbucket.org:muncok/sv_system.git

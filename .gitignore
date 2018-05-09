@@ -1,1 +1,15 @@
-*.pkl
+# ignore generated specific type  files,
+*.pyc
+# manifest files
+*.csv
+# Jupyter Notebook
+*.ipynb_checkpoints
+# model files
+*.pt, *.pkl
+# directory
+models/
+trials/
+manifests/ 
+.idea/
+# wav
+*.wav
