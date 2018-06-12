@@ -1,0 +1,31 @@
+[ 01.06.2018 - 14:41:16 ]
+    (MSG) [2] in SMILExtract : openSMILE starting!
+[ 01.06.2018 - 14:41:16 ]
+    (MSG) [2] in SMILExtract : config file is: vad_opensource.conf
+[ 01.06.2018 - 14:41:16 ]
+    (MSG) [2] in cComponentManager : successfully registered 96 component types.
+[ 01.06.2018 - 14:41:16 ]
+    (MSG) [2] in instance 'mvnVAD' : Loading init file in old MVN binary format
+[ 01.06.2018 - 14:41:16 ]
+    (MSG) [2] in smileRnn : Net file format: 1
+[ 01.06.2018 - 14:41:16 ]
+    (MSG) [2] in smileRnn : [rnn] net-task: 1
+==> LEVEL 'wave'  +++  Buffersize(frames) = 441000  +++  nReaders = 1
+==> LEVEL 'framesVAD'  +++  Buffersize(frames) = 100000  +++  nReaders = 1
+==> LEVEL 'prframesVAD'  +++  Buffersize(frames) = 100000  +++  nReaders = 1
+==> LEVEL 'winframesVAD'  +++  Buffersize(frames) = 100000  +++  nReaders = 1
+==> LEVEL 'fftVAD'  +++  Buffersize(frames) = 100000  +++  nReaders = 1
+==> LEVEL 'fftmagVAD'  +++  Buffersize(frames) = 100000  +++  nReaders = 1
+==> LEVEL 'melspec_powerVAD'  +++  Buffersize(frames) = 100000  +++  nReaders = 1
+==> LEVEL 'plp_VAD'  +++  Buffersize(frames) = 100  +++  nReaders = 2
+==> LEVEL 'plpde_VAD'  +++  Buffersize(frames) = 100  +++  nReaders = 1
+==> LEVEL 'plpmvn_VAD'  +++  Buffersize(frames) = 100  +++  nReaders = 1
+==> LEVEL 'vad_VAD'  +++  Buffersize(frames) = 100  +++  nReaders = 1
+==> LEVEL 'vad_VAD_voice'  +++  Buffersize(frames) = 100  +++  nReaders = 1
+[ 01.06.2018 - 14:41:18 ]
+    (MSG) [2] in cComponentManager : successfully finished createInstances
+                                 (13 component instances were finalised, 1 data memories were finalised)
+[ 01.06.2018 - 14:41:18 ]
+    (MSG) [2] in cComponentManager : starting single thread processing loop
+[ 01.06.2018 - 14:41:18 ]
+    (MSG) [2] in cComponentManager : Processing finished! System ran for 530 ticks.
