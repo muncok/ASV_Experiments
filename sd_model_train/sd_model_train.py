@@ -7,7 +7,6 @@ from sv_system.model import find_model
 from sv_system.train import si_train
 from sv_system.utils.data_utils import split_df
 from sv_system.utils.parser import default_config, train_parser, set_input_config, set_train_config
-
 #########################################
 # Parser
 #########################################
@@ -26,13 +25,15 @@ si_config['output_file'] = "models/compare_train_methods/" \
                 s_len=si_config["splice_frames"],
                 in_format=si_config['input_format'],
                 model=model, suffix=args.suffix)
+if not os.path.isdir("models/compare_train_methods/{dset}".format(dset=dataset)):
+    os.makedirs("models/compare_train_methods/{dset}".format(dset=dataset))
 
 #########################################
 # Dataset loaders
 #########################################
-df, n_labels = find_dataset(si_config, dataset)
+df, dataset_class, n_labels = find_dataset(si_config, dataset)
 split_dfs = split_df(df)
-loaders = init_loaders_from_df(si_config, split_dfs)
+loaders = init_loaders_from_df(si_config, split_dfs, dataset_class)
 
 #########################################
 # Model Initialization
@@ -49,7 +50,7 @@ elif args.start_epoch > 0 and os.path.isfile(si_config['output_file']):
 #########################################
 # Model Training
 #########################################
-si_config['print_step'] = 10
+si_config['print_step'] = 100
 si_train.set_seed(si_config)
 si_train.si_train(si_config, model=si_model, loaders=loaders,
         criterion=criterion)
