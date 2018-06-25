@@ -5,7 +5,7 @@ from sv_system.data.dataloader import init_loaders_from_df
 from sv_system.data.dataset import find_dataset
 from sv_system.model import find_model
 from sv_system.train import si_train
-from sv_system.utils.data_utils import split_df
+from sv_system.data.data_utils import split_df
 from sv_system.utils.parser import default_config, train_parser, set_input_config, set_train_config
 #########################################
 # Parser
