@@ -6,7 +6,8 @@ cmd="python sv_system/si_model_train.py \
 -model ResNet34_v1 \
 -loss softmax -version 2 -suffix si_set  \
 -inFm fbank -inFr 800 -spFr 800  \
--cuda"
+-cuda
+-gpu_no 0 1"
 #-input_file models/compare_train_methods/voxc_fbank_xvector/ResNet34/fbank_800f_800f_angular_si_set/e00.pt -s_epoch 10
 echo $cmd
 $cmd
