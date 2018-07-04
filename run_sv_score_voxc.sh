@@ -1,12 +1,13 @@
 #!/bin/bash
 
-cmd="python sv_system/si_model_train.py \
--nep 100 -batch 128 -lrs 0.1 \
+cmd="python sv_system/sv_score_voxc.py \
+-batch 128 \
 -dataset voxc_fbank \
 -model ResNet34_v1 \
--loss softmax -version 2 -suffix si_set  \
--inFm fbank -inFr 800 -spFr 800  \
--cuda"
+-loss softmax \
+-inFm fbank -inFr 200 -spFr 200  \
+-cuda \
+$1 $2"
 #-input_file models/compare_train_methods/voxc_fbank_xvector/ResNet34/fbank_800f_800f_angular_si_set/e00.pt -s_epoch 10
 echo $cmd
 $cmd
