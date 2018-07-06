@@ -1,2 +1,1 @@
-# human_sv
-evaluating human performance of speaker verification
+Speaker Verification Experiments

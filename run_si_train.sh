@@ -2,12 +2,11 @@
 
 cmd="python sv_system/si_model_train.py \
 -nep 100 -batch 128 -lrs 0.1 \
--dataset voxc_fbank \
--model ResNet34_v1 \
--loss softmax -version 2 -suffix si_set  \
+-dataset voxc_fbank_xvector \
+-model ResNet34_v3 -loss angular \
+-version 2 -suffix si_set_vad_angular \
 -inFm fbank -inFr 800 -spFr 800  \
--cuda
--gpu_no 0 1"
-#-input_file models/compare_train_methods/voxc_fbank_xvector/ResNet34/fbank_800f_800f_angular_si_set/e00.pt -s_epoch 10
+-cuda \
+$@"
 echo $cmd
 $cmd
