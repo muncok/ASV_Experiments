@@ -29,7 +29,6 @@ class ResNet34(nn.Module):
         else:
             print("not implemented loss")
             raise NotImplementedError
-        self.embed_dim = 8*inplanes
 
         self._init_weight()
 
@@ -47,16 +46,18 @@ class ResNet34(nn.Module):
         print("model saved to {}".format(filename))
 
     def load(self, filename):
-        self.load_state_dict(torch.load(filename, map_location=lambda storage, loc: storage))
+        self.load_state_dict(torch.load(filename, map_location=lambda storage,
+            loc: storage))
         print("model loaded from {}".format(filename))
 
     def load_extractor(self, filename):
-        state_dict =  torch.load(filename)
+        state_dict =  torch.load(filename)['state_dict']
         extractor_state_dict = {k:v for k,v in state_dict.items() if
         'extractor' in k}
         classifier_state_dict = {k:v for k,v in self.state_dict().items() if
         'extractor' not in k}
         new_state_dict = {**extractor_state_dict, **classifier_state_dict}
+        # print(extractor_state_dict.keys())
         self.load_state_dict(new_state_dict)
         assert(len(extractor_state_dict) > 0)
         print("extractor loaded from {}".format(filename))

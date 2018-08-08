@@ -3,7 +3,7 @@
 cmd="python sv_system/sv_score_voxc.py \
 -batch 128 \
 -dataset voxc1_fbank \
--inFm fbank -inFr 800 -spFr 800  \
+-inFm fbank -inFr 800 -spFr 800
 -cuda \
 $@"
 echo $cmd
