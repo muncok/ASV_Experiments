@@ -1,9 +1,62 @@
+import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.nn import Parameter
 from torchvision.models.resnet import BasicBlock
 
-from model import AngleLinear
+def myphi(x,m):
+    x = x * m
+    return 1-x**2/math.factorial(2)+x**4/math.factorial(4)-x**6/math.factorial(6) + \
+            x**8/math.factorial(8) - x**9/math.factorial(9)
+
+class AngleLinear(nn.Module):
+    def __init__(self, in_features, out_features, m = 4, phiflag=True):
+        super(AngleLinear, self).__init__()
+        self.in_features = in_features
+        self.out_features = out_features
+        self.weight = Parameter(torch.Tensor(in_features,out_features))
+        self.weight.data.uniform_(-1, 1).renorm_(2,1,1e-5).mul_(1e5)
+        self.phiflag = phiflag
+        self.m = m
+        self.mlambda = [
+            lambda x: x**0,
+            lambda x: x**1,
+            lambda x: 2*x**2-1,
+            lambda x: 4*x**3-3*x,
+            lambda x: 8*x**4-8*x**2+1,
+            lambda x: 16*x**5-20*x**3+5*x
+        ]
+
+    def forward(self, input):
+        x = input   # size=(B,F)    F is feature len
+        w = self.weight # size=(F,Classnum) F=in_features Classnum=out_features
+
+        ww = w.renorm(2,1,1e-5).mul(1e5)
+        xlen = x.pow(2).sum(1).pow(0.5) # size=B
+        wlen = ww.pow(2).sum(0).pow(0.5) # size=Classnum
+
+        cos_theta = x.mm(ww) # size=(B,Classnum)
+        # normalization
+        cos_theta = cos_theta / xlen.view(-1,1) / wlen.view(1,-1)
+        cos_theta = cos_theta.clamp(-1,1)
+
+        if self.phiflag:
+            cos_m_theta = self.mlambda[self.m](cos_theta)
+            theta = cos_theta.data.acos()
+            k = (self.m*theta/3.14159265).floor()
+            n_one = k*0.0 - 1
+            phi_theta = (n_one**k) * cos_m_theta - 2*k
+        else:
+            theta = cos_theta.acos()
+            phi_theta = myphi(theta,self.m)
+            phi_theta = phi_theta.clamp(-1*self.m,1)
+
+        cos_theta = cos_theta * xlen.view(-1,1)
+        phi_theta = phi_theta * xlen.view(-1,1)
+        output = (cos_theta, phi_theta)
+        return output # size=(B,Classnum,2)
+
 
 class ResNet34(nn.Module):
     def __init__(self, config, inplanes=16, n_labels=1000):
@@ -46,18 +99,25 @@ class ResNet34(nn.Module):
         print("model saved to {}".format(filename))
 
     def load(self, filename):
-        self.load_state_dict(torch.load(filename, map_location=lambda storage,
-            loc: storage))
+        if "tar" in filename:
+            state_dict =  torch.load(filename)['state_dict']
+        else:
+            state_dict = torch.load(filename)
+
+        self.load_state_dict(state_dict)
         print("model loaded from {}".format(filename))
 
     def load_extractor(self, filename):
-        state_dict =  torch.load(filename)['state_dict']
+        if "tar" in filename:
+            state_dict =  torch.load(filename)['state_dict']
+        else:
+            state_dict = torch.load(filename)
+
         extractor_state_dict = {k:v for k,v in state_dict.items() if
         'extractor' in k}
         classifier_state_dict = {k:v for k,v in self.state_dict().items() if
         'extractor' not in k}
         new_state_dict = {**extractor_state_dict, **classifier_state_dict}
-        # print(extractor_state_dict.keys())
         self.load_state_dict(new_state_dict)
         assert(len(extractor_state_dict) > 0)
         print("extractor loaded from {}".format(filename))
