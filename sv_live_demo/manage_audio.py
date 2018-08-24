@@ -52,3 +52,29 @@ def fft_audio(data, window_size, window_stride):
     spect.div_(std)
     return spect
 
+def strip_audio(x, frame_length=1024, hop_length=256, rms_ths=0.2):
+    # compute energy
+    rmse = librosa.feature.rmse(x, frame_length=frame_length, hop_length=hop_length)[0]
+    rms_ratio = rmse/rmse.max()
+
+    active_frames = np.nonzero(rms_ratio > rms_ths)[0]
+    assert len(active_frames) > 0, "there is no voice part in the wav"
+
+    # strip continous active part
+    s_sample = librosa.frames_to_samples(active_frames[0], hop_length=hop_length)[0]
+    e_sample = librosa.frames_to_samples(active_frames[-1], hop_length=hop_length)[0]
+
+	# plot the rmse on the wavelet of x
+    # frames = range(len(energy))
+	# import matplot.pyplot as plt
+    # energy = np.array([
+        # sum(abs(x[i:i+frame_length]**2))
+        # for i in range(0, len(x), hop_length)
+    # ])
+    # t = librosa.frames_to_time(frames, sr=sr, hop_length=hop_length)
+    # librosa.display.waveplot(x, sr=sr, alpha=0.4)
+    # plt.plot(t, energy/energy.max(), 'r--')             # normalized for visualization
+    # plt.plot(t[:len(rmse)], rmse/rmse.max(), color='g') # normalized for visualization
+    # plt.legend(('Energy', 'RMSE'))
+
+    return x[s_sample:e_sample]
