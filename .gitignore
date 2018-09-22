@@ -5,7 +5,9 @@
 # Jupyter Notebook
 *.ipynb_checkpoints
 # model files
-*.pt, *.pkl, *.pth
+*.pt 
+*.pkl
+*.pth
 # directory
 models/
 trials/
