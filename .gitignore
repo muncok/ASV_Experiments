@@ -8,10 +8,12 @@
 *.pt 
 *.pkl
 *.pth
+*.pth.tar
 # directory
 models/
 trials/
 manifests/ 
+embeddings/
 .idea/
 # wav
 *.wav
