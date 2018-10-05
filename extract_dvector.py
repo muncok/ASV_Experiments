@@ -1,6 +1,7 @@
 # coding: utf-8
 import os
 import pickle
+import numpy as np
 
 from sv_system.data.dataloader import init_default_loader
 from sv_system.utils.parser import score_parser, set_score_config
@@ -39,29 +40,22 @@ else:
 if not os.path.isdir(output_folder):
     os.makedirs(output_folder)
 
-val_dataloader = init_default_loader(config, si_dset, shuffle=False)
-embeddings, _ = embeds_utterance(config, val_dataloader, model, lda)
-dvec_dict = dict(zip(si_df.index.tolist(),
-    embeddings.numpy()))
+si_dataloader = init_default_loader(config, si_dset, shuffle=False)
+si_embeddings, _ = embeds_utterance(config, si_dataloader, model, lda)
 
-if not config['lda_file']:
-    pickle.dump(dvec_dict, open(os.path.join(output_folder,
-        "train_dvectors.pkl"), "wb"))
-else:
-    pickle.dump(dvec_dict, open(os.path.join(output_folder,
-        "train_dvectors_lda.pkl"), "wb"))
+si_keys = si_df.index.tolist()
+
+pickle.dump(si_keys, open(os.path.join(output_folder, "si_keys.pkl"), "wb"))
+np.save(os.path.join(output_folder, "si_embeds.npy"), si_embeddings)
 
 #########################################
 # Compute Test Embeddings
 #########################################
-val_dataloader = init_default_loader(config, sv_dset, shuffle=False)
-embeddings, _ = embeds_utterance(config, val_dataloader, model, lda)
-dvec_dict = dict(zip(sv_df.index.tolist(),
-    embeddings.numpy()))
+sv_dataloader = init_default_loader(config, sv_dset, shuffle=False)
+sv_embeddings, _ = embeds_utterance(config, sv_dataloader, model, lda)
 
-if not config['lda_file']:
-    pickle.dump(dvec_dict, open(os.path.join(output_folder,
-        "test_dvectors.pkl"), "wb"))
-else:
-    pickle.dump(dvec_dict, open(os.path.join(output_folder,
-        "test_dvectors_lda.pkl"), "wb"))
+sv_keys = sv_df.index.tolist()
+sv_embeds = sv_embeddings
+
+pickle.dump(sv_keys, open(os.path.join(output_folder, "sv_keys.pkl"), "wb"))
+np.save(os.path.join(output_folder, "sv_embeds.npy"), sv_embeddings)

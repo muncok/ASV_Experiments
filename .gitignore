@@ -12,8 +12,11 @@
 # directory
 models/
 trials/
-manifests/ 
 embeddings/
+manifests/ 
 .idea/
+exp_embedding/logs
+exp_embedding/saved_models
+exp_embedding/data
 # wav
 *.wav
