@@ -1,5 +1,6 @@
 # ignore generated specific type  files,
 *.pyc
+core
 # manifest files
 *.csv
 # Jupyter Notebook
@@ -16,7 +17,10 @@ embeddings/
 manifests/ 
 .idea/
 exp_embedding/logs
+exp_embedding/DDA/logs
 exp_embedding/saved_models
 exp_embedding/data
 # wav
 *.wav
+*.npy
+

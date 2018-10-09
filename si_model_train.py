@@ -17,6 +17,7 @@ from sv_system.train.train_utils import (set_seed, find_optimizer, get_dir_path,
         load_checkpoint, save_checkpoint, new_exp_dir)
 from sv_system.train.train_utils import Logger
 from sv_system.train.si_train import train, val, sv_test
+from torch.optim.lr_scheduler import ReduceLROnPlateau, MultiStepLR
 
 
 
@@ -39,6 +40,7 @@ loaders = init_loaders(config, datasets)
 #########################################
 model= find_model(config)
 criterion, optimizer = find_optimizer(config, model)
+plateau_scheduler = ReduceLROnPlateau(optimizer, 'min', factor=0.1, patience=10)
 
 #########################################
 # Model Save Path
@@ -91,14 +93,14 @@ else:
 set_seed(config)
 for epoch_idx in range(config["s_epoch"], config["n_epochs"]):
     curr_lr = optimizer.state_dict()['param_groups'][0]['lr']
-    idx = 0
-    while(epoch_idx >= config['lr_schedule'][idx]):
-    # use new lr from schedule epoch not a next epoch
-        idx += 1
-        if idx == len(config['lr_schedule']):
-            break
-    curr_lr = config['lrs'][idx]
-    optimizer.state_dict()['param_groups'][0]['lr'] = curr_lr
+    # idx = 0
+    # while(epoch_idx >= config['lr_schedule'][idx]):
+    # # use new lr from schedule epoch not a next epoch
+        # idx += 1
+        # if idx == len(config['lr_schedule']):
+            # break
+    # curr_lr = config['lrs'][idx]
+    # optimizer.state_dict()['param_groups'][0]['lr'] = curr_lr
     print("curr_lr: {}".format(curr_lr))
 
     # train code
@@ -112,6 +114,8 @@ for epoch_idx in range(config["s_epoch"], config["n_epochs"]):
     writer.add_scalar('val/loss', val_loss, epoch_idx)
     writer.add_scalar('val/acc', val_acc, epoch_idx)
     print("epoch #{}, val accuracy: {}".format(epoch_idx, val_acc))
+
+    plateau_scheduler.step(train_loss)
 
     # evaluate best_metric
     if not config['no_eer']:
@@ -148,6 +152,7 @@ for epoch_idx in range(config["s_epoch"], config["n_epochs"]):
         'epoch': epoch_idx,
         'step_no': (epoch_idx+1) * len(train_loader),
         'arch': config["arch"],
+        'dataset': config["dataset"],
         'loss': config["loss"],
         'state_dict': model_state_dict,
         'best_metric': best_metric,

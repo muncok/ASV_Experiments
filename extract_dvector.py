@@ -34,19 +34,21 @@ if not config['lda_file']:
 else:
     lda = pickle.load(open(config['lda_file'], "rb"))
 
-#########################################
-# Compute Train Embeddings
-#########################################
 if not os.path.isdir(output_folder):
     os.makedirs(output_folder)
 
+#########################################
+# Compute Train Embeddings
+#########################################
+
 si_dataloader = init_default_loader(config, si_dset, shuffle=False)
 si_embeddings, _ = embeds_utterance(config, si_dataloader, model, lda)
-
 si_keys = si_df.index.tolist()
-
 pickle.dump(si_keys, open(os.path.join(output_folder, "si_keys.pkl"), "wb"))
 np.save(os.path.join(output_folder, "si_embeds.npy"), si_embeddings)
+
+si_feat = dict(zip(si_keys, si_embeddings.numpy()))
+pickle.dump(si_feat, open(os.path.join(output_folder, "si_feat.pkl"), "wb"))
 
 #########################################
 # Compute Test Embeddings
@@ -56,6 +58,8 @@ sv_embeddings, _ = embeds_utterance(config, sv_dataloader, model, lda)
 
 sv_keys = sv_df.index.tolist()
 sv_embeds = sv_embeddings
-
 pickle.dump(sv_keys, open(os.path.join(output_folder, "sv_keys.pkl"), "wb"))
 np.save(os.path.join(output_folder, "sv_embeds.npy"), sv_embeddings)
+
+# sv_feat = dict(zip(sv_keys, sv_embeddings.numpy()))
+# pickle.dump(sv_feat, open(os.path.join(output_folder, "sv_feat.pkl"), "wb"))
