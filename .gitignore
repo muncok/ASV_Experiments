@@ -1,15 +1,19 @@
 # ignore generated specific type  files,
 *.pyc
 core
+
 # manifest files
 *.csv
+
 # Jupyter Notebook
 *.ipynb_checkpoints
+
 # model files
 *.pt 
 *.pkl
 *.pth
 *.pth.tar
+
 # directory
 models/
 trials/
@@ -20,7 +24,10 @@ exp_embedding/logs
 exp_embedding/DDA/logs
 exp_embedding/saved_models
 exp_embedding/data
-# wav
+
+# features
 *.wav
 *.npy
 
+# results
+*.pdf
