@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import Parameter
 from torchvision.models.resnet import BasicBlock
+from torchvision.models.resnet import ResNet 
 
 def myphi(x,m):
     x = x * m
@@ -174,6 +175,49 @@ class ResNet34_v1(ResNet34):
             raise NotImplementedError
 
         self.classifier = nn.Sequential(*classifier)
+
+class ResNet34_cr(ResNet):
+    """
+        remove maxpooling and keep fc
+        change first conv's kernel_size 7 --> 3
+    """
+    def __init__(self, config, inplanes=64, n_labels=10):
+        super(ResNet, self).__init__()
+        self.inplanes = inplanes
+        self.conv1 = nn.Conv2d(1, inplanes, kernel_size=3, stride=1, padding=1,
+                               bias=False)
+        self.bn1 = nn.BatchNorm2d(inplanes)
+        self.relu = nn.ReLU(inplace=True)
+        self.layer1 = self._make_layer(BasicBlock, inplanes, 3)
+        self.layer2 = self._make_layer(BasicBlock, 2*inplanes, 4, stride=2)
+        self.layer3 = self._make_layer(BasicBlock, 4*inplanes, 6, stride=2)
+        self.layer4 = self._make_layer(BasicBlock, 8*inplanes, 3, stride=2)
+        self.fc = nn.Linear(8*inplanes * BasicBlock.expansion, n_labels)
+
+    def load(self, filename):
+        self.load_state_dict(torch.load(filename)['state_dict'])
+        print("loaded from {}".format(filename))
+
+    def embed(self, x):
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+
+        x = x.view(x.size(0), x.size(1), -1)
+        x = torch.mean(x,2)
+
+        return x
+
+    def forward(self, x):
+        x = self.embed(x)
+        x = self.fc(x)
+
+        return x
 
 class ScaleResNet34(ResNet34):
     def __init__(self, config, inplanes, n_labels=1000, alpha=12):

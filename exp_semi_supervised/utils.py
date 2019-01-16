@@ -5,6 +5,7 @@ from sklearn.metrics import roc_curve
 def key2df(keys, delimeter="-"):
     key_df = pd.DataFrame(keys, columns=['key'])
     key_df['spk'] = key_df.key.apply(lambda x: x.split(delimeter)[0])
+    key_df['session'] = key_df.key.apply(lambda x: x.split(delimeter)[1])
     key_df['label'] = key_df.groupby('spk').ngroup()
     key_df['origin'] = key_df.spk.apply(lambda x: 'voxc2' if x.startswith('id') else 'voxc1')
     key_df = key_df.set_index('key')
@@ -59,5 +60,5 @@ def plot_ROC(y_train_true, y_train_prob):
     plt.title('ROC curve (Train), AUC = %.4f'%auc_train)
     plt.show()
 
-    return best_threshold, fpr_train, thresholds_train
+    return best_threshold, fpr_train, tpr_train, thresholds_train
 
