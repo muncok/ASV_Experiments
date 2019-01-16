@@ -1,3 +1,6 @@
 [submodule "sv_system"]
 	path = sv_system
 	url = git@bitbucket.org:muncok/sv_system.git
+[submodule "adaptive_sv_system"]
+	path = exp_adaptive_sv/adaptive_sv_system
+	url = git@github.com:muncok/Adaptive_SV.git
