@@ -7,11 +7,21 @@ def key2df(keys, delimeter="-"):
     key_df['spk'] = key_df.key.apply(lambda x: x.split(delimeter)[0])
     key_df['session'] = key_df.key.apply(lambda x: x.split(delimeter)[1])
     key_df['label'] = key_df.groupby('spk').ngroup()
-    key_df['origin'] = key_df.spk.apply(lambda x: 'voxc2' if x.startswith('id') else 'voxc1')
+    key_df['idx'] = range(len(key_df))
     key_df = key_df.set_index('key')
+    
+    key_df['idx'] = range(len(key_df))
+    id2idx = key_df.idx.to_dict()
+    idx2id = {v:k for k,v in id2idx.items()}
 
     return key_df
 
+def df2dict(key_df):
+    key_df['idx'] = range(len(key_df))
+    id2idx = key_df.idx.to_dict()
+    idx2id = {v:k for k,v in id2idx.items()}
+
+    return id2idx, idx2id
 
 def compute_eer(pos_scores, neg_scores):
     score_vector = np.concatenate([pos_scores, neg_scores])
