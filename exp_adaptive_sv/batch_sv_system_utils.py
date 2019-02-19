@@ -42,8 +42,10 @@ def compute_err(scores, labels):
     eer_fnr = fnrs[eer_idx]
     eer_thresh = thres[eer_idx]
     
+    return eer, eer_fpr, eer_fnr, eer_thresh
+    
 
-def compute_minDCF(scores, labels, p_tar=0.01, c_miss=1, c_fa=10):
+def compute_minDCF(scores, labels, p_tar=0.5, c_miss=1, c_fa=10):
     if isinstance(labels, list):
         labels = np.array(labels)
         
@@ -129,7 +131,8 @@ def run_trial(
     
     minDCF, minDCF_thres = compute_minDCF(score_fusion, labels)
     minDCF_pred = score_fusion > minDCF_thres
-    minDCF_error, minDCF_fpr, minDCF_fnr= compute_error(pred, labels)
+    minDCF_error, minDCF_fpr, minDCF_fnr = compute_error(minDCF_pred, labels)
+    
     if neg_embeds is not None:
         if not plda_dir:
             neg_score = cosine_sim(neg_embeds, test_embeds)
@@ -161,6 +164,8 @@ def run_trial(
     if verbose:
         print("[eer] eer={:.4f}, fpr={:.4f}, fnr={:.4f}, thres={:.4f}".format(
             eer, eer_fpr, eer_fnr, eer_thresh))
+        print("[clf_minDCF] error={:.4f}, fpr={:.4f}, fnr={:.4f}, thres={:.4f}".format(
+            minDCF_error, minDCF_fpr, minDCF_fnr, minDCF_thres))
         print("[clf] error={:.4f}, fpr={:.4f}, fnr={:.4f}, thres={:.4f}".format(
             clf_error, clf_fpr, clf_fnr, threshold))
         if neg_embeds is not None:
