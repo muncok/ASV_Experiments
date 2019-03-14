@@ -83,10 +83,11 @@ def hard_mining(anchor, pos_egs, neg_egs, margin=1.0):
 def class_weight(config, train_df):
     class_ratios = train_df.label.value_counts().sort_index()
     class_inv = 1 / class_ratios
-    max_inv = np.max(class_inv)
-    min_inv = np.min(class_inv)
-    class_weights = ((class_inv - min_inv) / max_inv).values
-    class_weights = torch.from_numpy(class_weights).float()
+    class_weights = torch.from_numpy(class_inv.values).float()
+#     max_inv = np.max(class_inv)
+#     min_inv = np.min(class_inv)
+#     class_weights = ((class_inv - min_inv) / max_inv).values
+#     class_weights = torch.from_numpy(class_weights).float()
     if not config['no_cuda']:
         class_weights = class_weights.cuda()
     

@@ -23,6 +23,11 @@ def df2dict(key_df):
 
     return id2idx, idx2id
 
+def get_id2idx(keys):
+    key_df = key2df(keys)
+    id2idx, idx2id = df2dict(key_df) 
+    return id2idx
+
 def compute_eer(pos_scores, neg_scores):
     score_vector = np.concatenate([pos_scores, neg_scores])
     label_vector = np.concatenate([np.ones(len(pos_scores)), np.zeros(len(neg_scores))])
