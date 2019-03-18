@@ -20,7 +20,7 @@ trials=$2/kaldi_trial
 
 mkdir -p $scores_dir/log
 run.pl $scores_dir/log/plda_scoring.log \
-  ivector-plda-scoring --normalize-length=true \
+  ivector-plda-scoring --normalize-length=true --num-utts=ark:${feat_dir}/num_utts.ark \
     "ivector-copy-plda --smoothing=0.0 ${plda_dir}/plda - |" \
     "ark:ivector-subtract-global-mean ${plda_dir}/mean.vec ark:${feat_dir}/feats.ark ark:- | transform-vec ${plda_dir}/transform.mat ark:- ark:- | ivector-normalize-length ark:- ark:- |" \
     "ark:ivector-subtract-global-mean ${plda_dir}/mean.vec ark:${feat_dir}/feats.ark ark:- | transform-vec ${plda_dir}/transform.mat ark:- ark:- | ivector-normalize-length ark:- ark:- |" \

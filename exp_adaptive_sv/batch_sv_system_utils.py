@@ -47,7 +47,7 @@ def compute_eer(scores, labels):
     fnrs = 1 - tprs
 
     eer_idx = np.nanargmin(np.abs(fprs - fnrs))
-    eer = np.mean([fprs[eer_idx], fnrs[eer_idx]])
+    eer = np.max([fprs[eer_idx], fnrs[eer_idx]])
     eer_fpr = fprs[eer_idx]
     eer_fnr = fnrs[eer_idx]
     eer_thresh = thres[eer_idx]
@@ -78,16 +78,28 @@ def get_embeds(ids, sv_embeds, id2idx, norm=True):
         embeds = embeds / np.linalg.norm(embeds, axis=1, keepdims=True)
     return embeds
 
-def compute_plda_score(enr_embeds, test_embeds, plda_dir, all_pair=True):
+def compute_plda_score(enr_embeds, test_embeds, plda_dir, all_pair=True, mean=False):
     os.environ["KALDI_ROOT"] = "/host/projects/kaldi"
-    enr_keys = ['enr{}'.format(i) for i in range(len(enr_embeds))]
+    if mean:
+        enr_keys = ['enr']
+        n_uttrs = len(enr_embeds)
+        enr_embeds = enr_embeds.mean(0, keepdims=True)
+    else:
+        enr_keys = ['enr_{}'.format(i) for i in range(len(enr_embeds))]
     test_keys = ['test_{}'.format(i) for i in range(len(test_embeds))]
     keys = enr_keys + test_keys
     embeds = np.concatenate([enr_embeds, test_embeds])
-
+    
 
     # write trials
     score_dir = TemporaryDirectory()
+    with open("{}/num_utts.ark".format(score_dir.name), "w") as f:
+        if mean:
+            f.write("enr {}\n".format(n_uttrs))
+        else:
+            for key in enr_keys:
+                f.write("{} {}\n".format(key, 1))
+        
     with open("{}/kaldi_trial".format(score_dir.name), "w") as f:
         if all_pair:
             trial_pairs = itertools.product(enr_keys, test_keys)

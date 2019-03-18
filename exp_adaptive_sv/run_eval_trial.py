@@ -101,11 +101,15 @@ def split_plda_sn_score_wrapper(embeds, adapt_labels, labels, score_q, plda_mode
     adapt_enr_idx = np.nonzero(plda_adapt_scores.mean(0) > eT)[0]
     plda_enr_embeds = np.concatenate([plda_init_enr_embeds, plda_adapt_embeds[adapt_enr_idx]],
                                      axis=0)
-    adapt_cohort_scores = compute_plda_score(plda_enr_embeds[len(plda_init_enr_embeds):], cohort_embeds, plda_model_dir)
-    adapt_cohort_mu = adapt_cohort_scores.mean(1)
-    adapt_cohort_std = adapt_cohort_scores.std(1)
-    adapt_norm_scores = (plda_adapt_scores.mean(0)[adapt_enr_idx] - adapt_cohort_mu)/(adapt_cohort_std)
-    norm_idx = [0,1,2] + (np.flip(np.argsort(adapt_norm_scores))+len(plda_init_enr_embeds)).tolist()
+    
+    adapt_cohort_scores = compute_plda_score(plda_enr_embeds, cohort_embeds, plda_model_dir)
+    if len(adapt_enr_idx) > 0:
+        adapt_cohort_mu = adapt_cohort_scores[len(plda_init_enr_embeds):].mean(1)
+        adapt_cohort_std = adapt_cohort_scores[len(plda_init_enr_embeds):].std(1)
+        adapt_norm_scores = (plda_adapt_scores.mean(0)[adapt_enr_idx] - adapt_cohort_mu)/(adapt_cohort_std)
+        norm_idx = [0,1,2] + (np.flip(np.argsort(adapt_norm_scores))+len(plda_init_enr_embeds)).tolist()
+    else:
+        norm_idx = [0,1,2]
     
     # test trial
     plda_test_scores = compute_plda_score(plda_enr_embeds, plda_test_embeds, 
