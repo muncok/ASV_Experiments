@@ -28,15 +28,58 @@ def get_id2idx(keys):
     id2idx, idx2id = df2dict(key_df) 
     return id2idx
 
-def compute_eer(pos_scores, neg_scores):
+def compute_error(preds, labels, verbose=True):
+    if isinstance(preds, list):
+        preds = np.array(preds)
+    if isinstance(labels, list):
+        labels = np.array(labels)
+
+    if not labels.sum() == 0:
+        fnr = np.count_nonzero((preds == 0) & (labels == 1)) / np.count_nonzero(labels == 1)
+    else:
+        fnr = 0
+    fpr = np.count_nonzero((preds == 1) & (labels == 0)) / np.count_nonzero(labels == 0)
+    err = np.count_nonzero(preds != labels) / len(labels)
+
+    return {'error':err, 'fpr':fpr, 'fnr':fnr}
+
+def compute_eer(scores, labels, verbose=True):
+    if isinstance(scores, list):
+        scores = np.array(scores)
+    if isinstance(labels, list):
+        labels = np.array(labels)
+
+    pos_scores = scores[np.nonzero(labels==1)]
+    neg_scores = scores[np.nonzero(labels==0)]
     score_vector = np.concatenate([pos_scores, neg_scores])
     label_vector = np.concatenate([np.ones(len(pos_scores)), np.zeros(len(neg_scores))])
-    fpr, tpr, thres = roc_curve(label_vector, score_vector, pos_label=1)
-    eer = np.min([fpr[np.nanargmin(np.abs(fpr - (1 - tpr)))],
-                 1-tpr[np.nanargmin(np.abs(fpr - (1 - tpr)))]])
-    thres = thres[np.nanargmin(np.abs(fpr - (1 - tpr)))]
+    fprs, tprs, thres = roc_curve(label_vector, score_vector, pos_label=1)
+    fnrs = 1 - tprs
 
-    return eer
+    eer_idx = np.nanargmin(np.abs(fprs - fnrs))
+    eer = np.max([fprs[eer_idx], fnrs[eer_idx]])
+    eer_fpr = fprs[eer_idx]
+    eer_fnr = fnrs[eer_idx]
+    eer_thresh = thres[eer_idx]
+    
+    if verbose:
+        print("eer: {:.2f}%, fpr: {:.2f}%, fnr: {:.2f}%".format(
+            eer*100, eer_fpr*100, eer_fnr*100))
+        
+    return eer, eer_fpr, eer_fnr, eer_thresh
+
+def compare_value(val_a, val_b, mask=None, verbose=True):
+    if mask is not None:
+        val_a = val_a[mask]
+        val_b = val_b[mask]
+    assert len(val_a) == len(val_b)
+    n = len(val_a)
+    r_inc = np.count_nonzero(val_a < val_b) / n
+    r_equal = np.count_nonzero(val_a == val_b) / n
+    r_dec = np.count_nonzero(val_a > val_b) / n
+    if verbose:
+        print("inc:{:.2f}, equal:{:.2f}, dec:{:.2f}".format(r_inc, r_equal, r_dec))
+    return r_inc, r_equal, r_dec
 
 def plot_ROC(y_train_true, y_train_prob):
     from sklearn.metrics import confusion_matrix, accuracy_score, roc_auc_score

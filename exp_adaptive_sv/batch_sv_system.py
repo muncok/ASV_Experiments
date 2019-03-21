@@ -18,42 +18,6 @@ def cosine_sim(a, b):
 
     return a @ b.T
 
-def compute_error(preds, labels, verbose=True):
-    if isinstance(preds, list):
-        preds = np.array(preds)
-    if isinstance(labels, list):
-        labels = np.array(labels)
-
-    if not labels.sum() == 0:
-        fnr = np.count_nonzero((preds == 0) & (labels == 1)) / np.count_nonzero(labels == 1)
-    else:
-        fnr = 0
-    fpr = np.count_nonzero((preds == 1) & (labels == 0)) / np.count_nonzero(labels == 0)
-    err = np.count_nonzero(preds != labels) / len(labels)
-
-    return {'error':err, 'fpr':fpr, 'fnr':fnr}
-
-def compute_eer(scores, labels):
-    if isinstance(scores, list):
-        scores = np.array(scores)
-    if isinstance(labels, list):
-        labels = np.array(labels)
-
-    pos_scores = scores[np.nonzero(labels==1)]
-    neg_scores = scores[np.nonzero(labels==0)]
-    score_vector = np.concatenate([pos_scores, neg_scores])
-    label_vector = np.concatenate([np.ones(len(pos_scores)), np.zeros(len(neg_scores))])
-    fprs, tprs, thres = roc_curve(label_vector, score_vector, pos_label=1)
-    fnrs = 1 - tprs
-
-    eer_idx = np.nanargmin(np.abs(fprs - fnrs))
-    eer = np.max([fprs[eer_idx], fnrs[eer_idx]])
-    eer_fpr = fprs[eer_idx]
-    eer_fnr = fnrs[eer_idx]
-    eer_thresh = thres[eer_idx]
-
-    return eer, eer_fpr, eer_fnr, eer_thresh
-
 def compute_minDCF(scores, labels, p_tar=0.5, c_miss=1, c_fa=10):
     if isinstance(labels, list):
         labels = np.array(labels)
