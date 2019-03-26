@@ -87,8 +87,8 @@ if __name__=='__main__':
             enr_embeds = get_embeds(enr_uttrs.id, plda_sv_embeds, plda_id2idx)
             nonTarget_embeds = get_embeds(nonTarget_uttrs.id, plda_sv_embeds, plda_id2idx)
             
-            uttrs = (target_uttrs, nonTarget_uttrs)
-            embeds = (enr_embeds, nonTarget_embeds)
+#             uttrs = (target_uttrs, nonTarget_uttrs)
+#             embeds = (enr_embeds, nonTarget_embeds)
         
             if args.mode == "random":
                 proc = Process(target=gen_trial_wrapper,

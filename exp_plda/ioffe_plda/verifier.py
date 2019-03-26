@@ -35,13 +35,14 @@ class Verifier:
 
         assert len(self.relevant_U_dims) == data.shape[1]
 
-    def multi_sess(self, enr_X, tst_X,  cov_scaling=False, cov_adapt=False):
+    def multi_sess(self, enr_X, tst_X, n_enr=None, cov_scaling=False, cov_adapt=False):
         enr_U = transform_X_to_U(enr_X, self.inv_A, self.m)
         tst_U = transform_X_to_U(tst_X, self.inv_A, self.m)
 
         logp_no_class = gaussian(np.zeros(tst_U.shape[1]), np.diag(self.Psi+1)).logpdf(tst_U)
         
-        n_enr = len(enr_U)
+        if n_enr is None:
+            n_enr = len(enr_U)
         cov_diag = np.diag(self.Psi / (n_enr * self.Psi + 1))
         multi_mean = n_enr*cov_diag*enr_U.mean(0)
         
@@ -49,8 +50,6 @@ class Verifier:
             cov_diag = n_enr*cov_diag
         
         if cov_adapt:
-#             import ipdb
-#             ipdb.set_trace()
             enr_var = np.mean(np.square(enr_U - multi_mean), axis=0)
             cov_diag = cov_diag + enr_var
         
@@ -108,7 +107,8 @@ class Verifier:
         adapt_enr_U = enr_U[init_n_enr:]
         
         # mahalonobis distance
-        dist_from_mean = [mahalanobis(U, init_multi_mean, np.linalg.inv(init_cov)) for U in adapt_enr_U]
+        dist_from_mean = [mahalanobis(U, init_multi_mean, np.linalg.inv(init_cov)) 
+                          for U in adapt_enr_U]
         # euclidean distance
 #         dist_from_mean = np.linalg.norm(adapt_enr_U - init_multi_mean, axis=1)
 #         print(np.sort(dist_from_mean))
@@ -148,6 +148,11 @@ class Verifier:
         return np.round(llr.reshape(1, -1), 5)
     
     def score_avg(self, enr_X, tst_X):
+        if enr_X.ndim == 1:
+            enr_X = enr_X.reshape(1, -1)
+        if tst_X.ndim == 1:
+            tst_X = tst_X.reshape(1, -1)
+            
         enr_U = transform_X_to_U(enr_X, self.inv_A, self.m)
         tst_U = transform_X_to_U(tst_X, self.inv_A, self.m)
 
@@ -160,8 +165,12 @@ class Verifier:
             logp_same_class = gaussian(enr_U[i]*cov_diag, cov_diag+1).logpdf(tst_U)
             llr = logp_same_class - logp_no_class
             llr_list.append(llr)
+        
+        llr_arr = np.round(llr_list, 5)
+        if llr_arr.ndim == 1:
+            llr_arr = llr_arr.reshape(1, -1)
 
-        return np.round(llr_list, 5)
+        return llr_arr
     
     def vector_avg(self, enr_X, tst_X):
         # averaging vertors befor scoring

@@ -68,18 +68,6 @@ def compute_eer(scores, labels, verbose=True):
         
     return eer, eer_fpr, eer_fnr, eer_thresh
 
-def compare_value(val_a, val_b, mask=None, verbose=True):
-    if mask is not None:
-        val_a = val_a[mask]
-        val_b = val_b[mask]
-    assert len(val_a) == len(val_b)
-    n = len(val_a)
-    r_inc = np.count_nonzero(val_a < val_b) / n
-    r_equal = np.count_nonzero(val_a == val_b) / n
-    r_dec = np.count_nonzero(val_a > val_b) / n
-    if verbose:
-        print("inc:{:.2f}, equal:{:.2f}, dec:{:.2f}".format(r_inc, r_equal, r_dec))
-    return r_inc, r_equal, r_dec
 
 def plot_ROC(y_train_true, y_train_prob):
     from sklearn.metrics import confusion_matrix, accuracy_score, roc_auc_score
@@ -120,3 +108,47 @@ def plot_ROC(y_train_true, y_train_prob):
 
     return best_threshold, fpr_train, tpr_train, thresholds_train
 
+def compare_value(src, target, mask=None, verbose=True):
+    if mask is not None:
+        src = src[mask]
+        target = target[mask]
+    src = np.array(src)
+    target = np.array(target)
+    assert len(src) == len(target)
+    n = len(src)
+    r_inc = np.count_nonzero(src < target) / n
+    r_equal = np.count_nonzero(src == target) / n
+    r_dec = np.count_nonzero(src > target) / n
+    if verbose:
+        print("inc:{:.2f}, equal:{:.2f}, dec:{:.2f}".format(r_inc, r_equal, r_dec))
+    return r_inc, r_equal, r_dec
+
+# https://stackoverflow.com/questions/9110837/python-simple-list-merging-based-on-intersections
+def merge(lsts):
+    sets = [set(lst) for lst in lsts if lst]
+    merged = True
+    while merged:
+        merged = False
+        results = []
+        while sets:
+            common, rest = sets[0], sets[1:]
+            sets = []
+            for x in rest:
+                if x.isdisjoint(common):
+                    sets.append(x)
+                else:
+                    merged = True
+                    common |= x
+            results.append(common)
+        sets = results
+    return [list(set_) for set_ in sets]
+
+def s_norm_score(scores, enr_mu, enr_std, test_mu, test_std):
+    norm_scores = ((scores - enr_mu)/enr_std +\
+                   (scores - test_mu)/test_std)/2
+    return norm_scores
+    
+def compute_stat(embeds):
+    mu = np.mean(embeds)
+    std = np.std(embeds)
+    return mu, std

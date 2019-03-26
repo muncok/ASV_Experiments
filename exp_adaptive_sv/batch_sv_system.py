@@ -212,3 +212,4 @@ def plot_score(scores, labels, threshold, title):
     plt.scatter(neg_score_idx, scores[neg_score_idx], alpha=0.2, color='b')
     plt.scatter(pos_score_idx, scores[pos_score_idx], alpha=0.5, color='r')
     plt.show()
+
