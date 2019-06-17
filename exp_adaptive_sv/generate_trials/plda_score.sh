@@ -1,0 +1,1 @@
+../plda_score.sh
